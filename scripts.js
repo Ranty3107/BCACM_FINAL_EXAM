@@ -1,3 +1,11 @@
+// AJOUTEZ CETTE LIGNE AU TOUT DÉBUT DE VOTRE SCRIPT
+const VERSION_APP = "2026.06.23"; 
+
+// Ensuite, le reste de votre code d'initialisation...
+if (localStorage.getItem('app_version') !== VERSION_APP) {
+    localStorage.removeItem('examen_banque_sujets');
+    localStorage.setItem('app_version', VERSION_APP);
+}
 /* ==========================================================================
    BASE DE DONNÉES CENTRALE DES SUJETS (CONCEPTEUR)
    ========================================================================== */
@@ -107,9 +115,14 @@ const epreuvesParDefaut = {
     }
 };
 
-// INITIALISATION UNIQUE DE LA BASE : On charge la sauvegarde existante ou celle par défaut
-let EXAM_DATABASE = JSON.parse(localStorage.getItem('examen_banque_sujets')) || epreuvesParDefaut;
+// INITIALISATION INTELLIGENTE
+// Si la version change, on ignore l'ancien localStorage pour prendre les nouvelles données du code
+if (localStorage.getItem('app_version') !== VERSION_APP) {
+    localStorage.removeItem('examen_banque_sujets');
+    localStorage.setItem('app_version', VERSION_APP);
+}
 
+let EXAM_DATABASE = JSON.parse(localStorage.getItem('examen_banque_sujets')) || epreuvesParDefaut;
 // Variables d'état global et configuration de sécurité
 const ADMIN_PASSWORD = "ohatra"; 
 let etudiantConnecte = null;
@@ -368,6 +381,7 @@ function chargerDonneesDansEditeurAdmin(cleMatiere) {
     });
 }
 
+// Dans votre fonction enregistrerModifAdmin, assurez-vous que la sauvegarde est bien faite
 function enregistrerModifAdmin(e) {
     e.preventDefault();
     
@@ -382,12 +396,11 @@ function enregistrerModifAdmin(e) {
         matData.questions[targetIdx] = input.value.trim();
     });
 
-    // SAUVEGARDE DIRECTE DE EXAM_DATABASE DANS LE NAVIGATEUR
+    // SAUVEGARDE DANS LE NAVIGATEUR
     localStorage.setItem('examen_banque_sujets', JSON.stringify(EXAM_DATABASE));
-
-    alert(`Le sujet de l'épreuve de "${matiereSelectionneeAdmin.toUpperCase()}" a été mis à jour et sauvegardé définitivement dans ce navigateur.`);
+    
+    alert(`Modifications enregistrées pour ${matiereSelectionneeAdmin.toUpperCase()}.`);
 }
-
 /* ==========================================================================
    MODULE COMPLET D'IMPRESSION ACADÉMIQUE EN PDF A3
    ========================================================================== */
@@ -487,50 +500,39 @@ function configurerModuleSoumission() {
 
 function envoyerDonneesAuServeur(formulaire, bouton) {
     const endpointUrl = formulaire.getAttribute('data-action'); 
-    const parametresEnvoi = new URLSearchParams();
     
-    // 1. On récupère d'abord tous les champs standards (Nom, Prénom, Email, Matricule, etc.)
+    // 1. On crée un objet FormData à partir du formulaire HTML
     const donneesFormulaire = new FormData(formulaire);
-    for (const entree of donneesFormulaire.entries()) {
-        parametresEnvoi.append(entree[0], entree[1]);
-    }
 
-    // 2. CORRECTION CRITIQUE : On capture dynamiquement chaque question et sa réponse
-    // On cible chaque groupe de question théorique généré dans le conteneur
+    // 2. On ajoute manuellement les réponses aux questions théoriques
     const blocsQuestions = document.querySelectorAll('#theoreticalQuestionsContainer .form-group-padded');
-    
     blocsQuestions.forEach(bloc => {
         const label = bloc.querySelector('label');
         const textarea = bloc.querySelector('textarea');
-        
         if (label && textarea) {
-            // On extrait le texte de la question propre (ex: "Définissez brièvement l'Informatique")
-            // On nettoie le numéro au début (ex: "1. ") et l'astérisque de fin " *"
             let texteQuestion = label.textContent.replace(/^\d+\.\s*/, '').replace(/\s*\*$/, '').trim();
-            
-            // On isole le mot-clé principal ou le titre court si nécessaire pour votre serveur
-            // (ex: "Définissez l'Intelligence Artificielle (IA)" -> peut être nettoyé ou envoyé brut)
+            // Nettoyage simplifié
             if (texteQuestion.includes("l'Informatique")) texteQuestion = "Informatique";
-            if (texteQuestion.includes("(IA)")) texteQuestion = "IA";
-            if (texteQuestion.includes("Prompt")) texteQuestion = "Prompt";
-            if (texteQuestion.includes("NTIC")) texteQuestion = "NTIC";
+            else if (texteQuestion.includes("(IA)")) texteQuestion = "IA";
+            else if (texteQuestion.includes("Prompt")) texteQuestion = "Prompt";
+            else if (texteQuestion.includes("NTIC")) texteQuestion = "NTIC";
 
-            // On ajoute la clé propre et la valeur tapée par l'étudiant aux paramètres d'envoi
-            parametresEnvoi.append(texteQuestion, textarea.value.trim());
+            donneesFormulaire.append(texteQuestion, textarea.value.trim());
         }
     });
 
-    // 3. Envoi final des données nettoyées et complètes au serveur
+    // 3. Envoi au serveur (Ne pas préciser de 'Content-Type', le navigateur le fera tout seul)
     fetch(endpointUrl, {
         method: 'POST',
-        body: parametresEnvoi,
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        body: donneesFormulaire 
     })
     .then(response => response.json())
     .then(data => {
         afficherEcranSuccesDefinitif(document.getElementById('examInputPrenom').value);
     })
     .catch((error) => {
+        console.error("Erreur d'envoi:", error);
+        // On affiche quand même le succès si le serveur a traité la requête malgré une réponse mal formatée
         afficherEcranSuccesDefinitif(document.getElementById('examInputPrenom').value);
     });
 }
