@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plateforme Institutionnelle d'Évaluation Numérique</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="viewLogin" class="app-view active">
+        <div class="login-wrapper">
+            <div class="login-card">
+                <div class="login-logo">
+                    <h2>ESPACE D'EXAMEN</h2>
+                    <p><strong>Authentification officielle du candidat</strong></p>
+                    </p>
+                </div>
+                <form id="loginForm">
+                    <div class="form-control-group">
+                        <label for="loginMatricule">N° Matricule <span class="required">*</span></label>
+                        <input type="text" id="loginMatricule" class="form-input" placeholder="Ex: MAT-2026-098" required>
+                    </div>
+                    <div class="form-control-group">
+                        <label for="loginNom">Nom <span class="required">*</span></label>
+                        <input type="text" id="loginNom" class="form-input" placeholder="Votre nom de famille" required>
+                    </div>
+                    <div class="form-control-group">
+                        <label for="loginPrenom">Prénom <span class="required">*</span></label>
+                        <input type="text" id="loginPrenom" class="form-input" placeholder="Votre prénom" required>
+                    </div>
+                    <button type="submit" class="btn-primary-block">Accéder au tableau des épreuves</button>
+                </form>
+                <div class="admin-trigger-zone">
+                    Espace enseignant ? <span id="btnTriggerAdmin">Gérer les sujets</span>
+                    
+                </div>
+                <section class="fiz">
+                <p class="signaturep">034.97.98.195</p>
+                <p class="signature">rjnasolo@gmail.com
+                </section>
+                </section>
+                
+            </div>
+        </div>
+    </div>
+
+    <div id="viewDashboard" class="app-view">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <div class="user-welcome">
+                    <h1 id="dashWelcomeTitle">Bonjour, [Nom Etudiant]</h1>
+                    <p>Matricule : <span id="dashMatriculeBadge">---</span> | Session Officielle Établie</p>
+                </div>
+                <button class="btn-logout" id="btnLogout">Quitter l'espace</button>
+            </div>
+            <h2 class="dashboard-section-title">Épreuves Écrites Disponibles :</h2>
+            <div class="subjects-grid" id="subjectsGridContainer"></div>
+        </div>
+    </div>
+
+    <div id="viewExamPage" class="app-view">
+        <div class="main-layout">
+            
+            <div class="help-sidebar" id="examSidebarDynamic"></div>
+
+            <div class="form-container">
+                <form id="examForm" method="POST" data-action="https://script.google.com/macros/s/AKfycbwzFaMcG7PIc4EaNQBjNp2hZfEmNnoFeXOdVLVugHS-NpKTaq1kS3IVja4evbZ0lOS4QA/exec">    
+                    <input type="hidden" id="hiddenZipData" name="projet_pratique_zip">
+                    <input type="hidden" id="hiddenSubjectName" name="matiere_examen">
+                    <input type="hidden" id="hiddenMatricule" name="matricule_candidat">
+
+                    <div class="exam-header-zone">
+                        <div class="exam-meta-left">
+                            <div class="meta-field">
+                                <strong>CONCOURS :</strong> 
+                                <input type="text" class="header-inline-input" name="concours_titre" value="Examen Officiel">
+                            </div>
+                            <div class="meta-field">
+                                <strong>ÉPREUVE :</strong> 
+                                <span class="highlight-spec" id="examSubjectBadge">MATIERE</span>
+                            </div>
+                            <div class="meta-field">
+                                <strong>DATE :</strong> 
+                                <input type="date" class="header-inline-input" name="date_session" id="examDateAuto">
+                            </div>
+                        </div>
+                        
+                        <div class="exam-anonymat-box">
+                            <div class="black-triangle"></div>
+                            <div class="anonymat-fields">
+                                <div class="header-field-group">
+                                    <label>NOM :</label>
+                                    <input type="text" id="examInputNom" name="nom_candidat" readonly>
+                                </div>
+                                <div class="header-field-group">
+                                    <label>Prénom :</label>
+                                    <input type="text" id="examInputPrenom" name="prenom_candidat" readonly>
+                                </div>
+                                <div class="header-field-group">
+                                    <label>Email <span class="required">*</span> :</label>
+                                    <input type="email" id="examInputEmail" name="email_candidat" placeholder="etudiant@domaine.com" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="exam-notation-bar">
+                        <div class="score-box">
+                            <span class="score-label">Note :</span>
+                            <span class="score-value">/ 20</span>
+                        </div>
+                        <div class="corrector-obs">
+                            <div class="obs-warning">IL EST INTERDIT AU CANDIDAT DE SIGNER SA COPIE OU DE FAIRE APPARAÎTRE UN SIGNE DISTINCT QUELCONQUE</div>
+                            <div class="obs-title">Observations du correcteur</div>
+                        </div>
+                    </div>
+
+                    <div class="form-header">
+                        <h1 id="examTitleMain">Épreuve Officielle</h1>
+                        <p>Veuillez traiter l'ensemble des questions théoriques posées puis accomplir le livrable pratique demandé.</p>
+                    </div>
+
+                    <div class="form-card" id="theoreticalQuestionsContainer"></div>
+
+                    <div class="form-card">
+                        <div class="section-title">Deuxième Partie : Intégration Pratique</div>
+                        
+                        <div class="instructions-box" id="practicalInstructionsContainer"></div>
+                        
+                        <div class="form-group-padded">
+                            <h3>📋 Texte d'exercice à copier-coller</h3>
+                            <p class="section-subtext">Exploitez rigoureusement le texte ci-dessous pour réaliser le projet demandé :</p>
+                            <div class="text-to-copy" id="practicalTextToCopy"></div>
+                        </div>
+
+                        <div class="form-group-padded">
+                            <label for="file-upload">Déposez votre dossier d'examen compressé (.zip) <span class="required">*</span></label>
+                            <span class="input-desc">Votre archive (.zip) doit englober l'ensemble de vos productions correspondantes.</span>
+                            <div class="file-upload-zone">
+                                <input type="file" id="file-upload" accept=".zip,.rar,.7z" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="actions-footer-bar">
+                        <button type="button" class="btn-back-dash" id="btnBackToDashboard">← Retour aux matières</button>
+                        <div class="actions-right-group">
+                            <button type="button" id="btnPrintPDF" class="btn-pdf">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="btn-icon">
+                                    <path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                                    <path d="M6 14h12v8H6z"></path>
+                                </svg>Sauvegarder en PDF
+                            </button>
+                            <button type="submit" class="btn-submit" id="btnSubmitExam">Soumettre ma copie définitive</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewAdmin" class="app-view">
+        <div class="admin-layout">
+            <div class="admin-header">
+                <div>
+                    <h1>Panneau d'Administration des Épreuves</h1>
+                    <p class="admin-subtitle">Édition temps réel des sujets théoriques et guides pratiques</p>
+                </div>
+                <button class="btn-back-dash" id="btnAdminBackToPublic">Retour au Portail public</button>
+            </div>
+            
+            <div class="admin-main">
+                <div class="admin-sidebar-subjects">
+                    <h3>📚 Matières actives</h3>
+                    <ul class="admin-subj-list" id="adminSubjectsList"></ul>
+                    <p class="admin-sidebar-note">Note : Pour ajouter ou supprimer définitivement une matière, modifiez la structure "EXAM_DATABASE" dans votre fichier script.js.</p>
+                </div>
+                
+                <div class="admin-editor-card">
+                    <h2 class="editor-section-title" id="adminCurrentEditingTitle">Édition du sujet</h2>
+                    <form id="adminEditorForm">
+                        <div class="form-control-group">
+                            <label>Description Courte de la Matière (S'affiche sur le Tableau de bord)</label>
+                            <input type="text" id="admDesc" class="form-input">
+                        </div>
+                        
+                        <div id="admQuestionsContainer"></div>
+
+                        <div class="form-control-group textarea-admin-group">
+                            <label>Consignes Pratiques & Barème (Format HTML accepté)</label>
+                            <textarea id="admPratiqueInstructions" class="form-input" rows="6"></textarea>
+                        </div>
+
+                        <div class="form-control-group">
+                            <label>Texte brut ou énoncé d'exercice à copier-coller</label>
+                            <textarea id="admPratiqueTextToCopy" class="form-input" rows="6"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-save-admin">Enregistrer les modifications du sujet</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminPasswordModal" class="admin-modal-overlay">
+        <div class="admin-modal-card">
+            <h3>Espace Enseignant</h3>
+            <p>Veuillez saisir le mot de passe administrateur pour accéder à l'espace de configuration :</p>
+            <input type="password" id="adminHiddenPasswordField" class="admin-password-field" placeholder="••••••••">
+            <div class="admin-modal-actions">
+                <button type="button" class="btn-admin-modal-cancel" id="btnCancelAdminModal">Annuler</button>
+                <button type="button" class="btn-admin-modal-confirm" id="btnConfirmAdminModal">Valider</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="scripts.js"></script>
+    
+</body>
+</html>
